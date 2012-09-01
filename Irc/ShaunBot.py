@@ -1,7 +1,5 @@
 from bot import IrcBot
 from time import sleep
-import re
-import web
 
 class ShaunBot(IrcBot):
 
