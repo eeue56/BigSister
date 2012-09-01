@@ -26,14 +26,15 @@ class ShaunBot(IrcBot):
     def google_search(self, searchkey, *args, **kwargs):
         try:
             gs = GoogleSearch(searchkey)
-            gs.results_per_page = 50
+            gs.results_per_page = 10
             results = gs.get_results()
             print results
-            for results in results:
-                print results
-                self.send("PRIVMSG %s :%s\r\n" % (kwargs['target_channel'], results.url.encode("utf8")))
+            print gs.num_results
+
+            return '\n'.join(result.url.encode('utf-8') for result in results)
+
         except SearchError, e:
-            self.send("PRIVMSG %s :%s\r\n" % ('Search Failed', e))
+            return 'Search Failed!'
 
 if __name__ == '__main__':
     bot = ShaunBot('irc.freenode.org', 6667, 'NoahSucksBot', 'Problem', 'Peehead', 'Nob')
