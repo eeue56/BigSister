@@ -1,5 +1,5 @@
 from requests import get as get_request	
-	
+
 def levenshtein(current_word, next_word):
 	''' Says how similar a word is to the next word '''
 
