@@ -14,9 +14,11 @@ class ShaunBot(IrcBot):
     def list_users(self, *args, **kwargs):
         self.send('NAMES ' + kwargs['target_channel'])
         userlist = self.read().split(':')[2].split()
-        for users in userlist:
-            return users + '\n'
 
+        for item in userlist:
+            self.send('PRIVMSG %s :%s\n' % (kwargs['target_channel'], item))
+        return '--End of User List--'
+        
     def move_to_channel(self, newchan, *args, **kwargs):
         self.send('JOIN '+ newchan)
 
