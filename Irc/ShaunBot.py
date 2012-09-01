@@ -31,7 +31,7 @@ class ShaunBot(IrcBot):
             print results
             print gs.num_results
 
-            return '\n'.join(result.url.encode('utf-8') for result in results)
+            return '\n'.join(results.url.encode('utf-8') for results in results)
 
         except SearchError, e:
             return 'Search Failed!'
