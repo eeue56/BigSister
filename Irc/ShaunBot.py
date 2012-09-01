@@ -1,6 +1,5 @@
 from bot import IrcBot
 from time import sleep
-from search import GoogleSearch, SearchError
 import socket
 
 class ShaunBot(IrcBot):
@@ -11,30 +10,18 @@ class ShaunBot(IrcBot):
         self.register_command(self.move_to_channel, 'move_to')
         self.register_command(self.list_users, 'users')
         self.register_command(self.search_for, 'search_for')
-        self.register_command(self.google_search, 'google')
 
     def list_users(self, *args, **kwargs):
         self.send('NAMES ' + kwargs['target_channel'])
-        return self.read().split(':')[2]
+        userlist = self.read().split(':')[2].split()
+        for users in userlist:
+            return users + '\n'
 
     def move_to_channel(self, newchan, *args, **kwargs):
         self.send('JOIN '+ newchan)
 
     def search_for(self, searchterm, *args, **kwargs):
         return 'https://www.google.co.uk/search?q='+searchterm
-
-    def google_search(self, searchkey, *args, **kwargs):
-        try:
-            gs = GoogleSearch(searchkey)
-            gs.results_per_page = 10
-            results = gs.get_results()
-            print results
-            print gs.num_results
-
-            return '\n'.join(results.url.encode('utf-8') for results in results)
-
-        except SearchError, e:
-            return 'Search Failed!'
 
 if __name__ == '__main__':
     bot = ShaunBot('irc.freenode.org', 6667, 'NoahSucksBot', 'Problem', 'Peehead', 'Nob')
