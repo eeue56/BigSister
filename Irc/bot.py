@@ -20,7 +20,8 @@ class IrcBot(object):
         self.actions = {
                         'quit' : self.quit,
                         'silence' : self.silence,
-                        'speak' : self.speak
+                        'speak' : self.speak,
+                        '!!' : self.last_command
                         }
 
         self.commands = []
@@ -151,9 +152,7 @@ class IrcBot(object):
         ''' Gets the action from the message and returns it if it is valid action'''
         if message.split()[0].strip() in self.actions:
             command, action = message.split()[0], self.actions[message.split()[0]]
-            
-            if command != '!!':
-                self.commands.append(action)
+
             return command, action
         return None, None
 
@@ -165,52 +164,83 @@ class IrcBot(object):
         ''' Send text to connected socket '''
         self.s.send(text.strip() + '\r\n')
 
-    def read_and_process(self):
+    def _join_waiting_channels(self):
+        for chan in self.to_join:
+            self.connect_to_channel(chan)
+        self.to_join = []
+
+    def next_line(self):
+        ''' Gets the next line from the socket '''
+        return self.read()
+
+    def _add_command_to_history(self, command,  action):
+        ''' Adds command to history '''
+        if command != '!!':
+                self.commands.append(action)
+
+    def _is_identify_check_needed(self):
+        '''  Checks if identity check is needed '''
+        return self.registered is not None and not self.identified
+            
+
+    def process_command(self, user, target_channel, message):
+        ''' Processes a command '''
+
+        command, action = self.get_action(message)
+
+        if command is not None: 
+            self._add_command_to_history(command, action)
+            message = crop_string(message, command)
+            message = message.strip()
+            response = action(message, user=user,target_channel=target_channel)
+            self._send_messages(target_channel, '{message}'.format(message=response))
+        else:
+            self._send_message(target_channel, '{user}: Piss off.'.format(user=user))  
+
+
+    def process_directed_line(self, line_parts):
+        ''' Processes a line directed at the bot '''
+
+        user, target_channel, message = (part.strip() for part in line_parts.groups())
+
+        if self.channels[target_channel]['silenced'] and 'speak' not in message:
+            return
+                        
+        if '~' in message:
+            message = crop_string(message, '~')
+        elif ':' in message and self.nick.lower() in message.lower():
+            message = crop_string(message, ':')
+        else:
+            return
+
+        if target_channel == self.nick:
+            target_channel = user
+        
+        self.process_command(user, target_channel, message)
+
+
+    def process_next_line(self):
         ''' Reads a line from the socket and processes it, calling the right action and ponging '''
-        line = self.read()
+        line = self.next_line()
 
         if 'PING' in line:
             self.pong()
             return
+        
+        if self._is_identify_check_needed():
 
-        if self.registered is not None and not self.identified:     
-            self.identified = self.identify(line)
+            self.identified = self.is_identified(line)
 
             if not self.identified:
                 return
             else:
-                for chan in self.to_join:
-                    self.connect_to_channel(chan)
-                self.to_join = []
+               self._join_waiting_channels()
 
         if self.is_directed_at_me(line):
             useful_parts = self.useful_parts(line)
-
             if useful_parts is not None:
-                user, target_channel, message = (part.strip() for part in useful_parts.groups())
-
-                if self.channels[target_channel]['silenced'] and 'speak' not in message:
-                    return
-                                
-                if '~' in message:
-                    message = crop_string(message, '~')
-                elif ':' in message and self.nick.lower() in message.lower():
-                    message = crop_string(message, ':')
-                else:
-                    return
+                self.process_directed_line(useful_parts)
     
-                command, action = self.get_action(message)
-                
-                if target_channel == self.nick:
-                    target_channel = user
-                
-                if command is not None: 
-                    message = crop_string(message, command)
-                    message = message.strip()
-                    response = action(message, user=user,target_channel=target_channel)
-                    self._send_messages(target_channel, '{message}'.format(message=response))
-                else:
-                    self._send_message(target_channel, '{user}: Piss off.'.format(user=user))  
 
 if __name__ == '__main__':
     bot = IrcBot('irc.freenode.org', 6667, 'ShaunSmellsBot', 'Problem', 'Peehead', 'Nob')
@@ -223,12 +253,13 @@ if __name__ == '__main__':
     with open('errors.log', 'w+') as errors:
         while True:
             try:
-                bot.read_and_process()
+                bot.process_next_line()
             except socket.error as e:
                 errors.write(e.message)
+                errors.write('\n')
                 break 
-            except KeyboardInterrupt:
-                break
             except Exception as e:
                 errors.write(e.message)
+                errors.write('\n')
+                raise
             sleep(0.5)
