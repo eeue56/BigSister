@@ -35,7 +35,7 @@ if __name__ == '__main__':
     with open('errors.log', 'w+') as errors:
         while True:
             try:
-                bot.read_and_process()
+                bot.process_next_line()
             except socket.error as e:
                 errors.write(e.message)
                 break 
