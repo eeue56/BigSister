@@ -81,21 +81,21 @@ class ShaunBot(IrcBot):
                     'the application to re-authorise')
 
     def send_mail(self, receiver, *args, **kwargs):
-        sender = 'shaunpreston1991@gmail.com'
-        sub = 'test'
-        message = 'Test Email'
+        sender = 'BigSister1379@gmail.com'
+        sub = 'Big Sister Notification'
+        message = ''
 
         try:
-            smtpObj = smtplib.SMTP('smtp.gmail.com:587')
-            username = ''
+            smtp_server = smtplib.SMTP('smtp.gmail.com:587')
+            username = 'BigSister1379@gmail.com'
             password = ''
-            smtpObj.ehlo()
-            smtpObj.starttls()
-            smtpObj.login(username, password)
-            smtpObj.sendmail(sender, receiver, message)
-            smtpObj.quit()
+            smtp_server.ehlo()
+            smtp_server.starttls()
+            smtp_server.login(username, password)
+            smtp_server.sendmail(sender, receiver, message)
+            smtp_server.quit()
             return 'Mail Sent'
-        except smtplib.SMTPException:
+        except smtplib.SMTPException, error:
             return 'Unable to Send Mail: %s.' % str(error)
 
 
