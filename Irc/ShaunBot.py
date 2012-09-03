@@ -2,6 +2,8 @@ from bot import IrcBot
 from time import sleep
 import socket
 
+import smtplib
+
 import httplib2
 import sys
 
@@ -20,6 +22,7 @@ class ShaunBot(IrcBot):
         self.register_command(self.list_users, 'users')
         self.register_command(self.search_for, 'search_for')
         self.register_command(self.access_cal, 'cal')
+        self.register_command(self.send_mail, 'mail')
 
     def list_users(self, *args, **kwargs):
         self.send('NAMES ' + kwargs['target_channel'])
@@ -35,7 +38,17 @@ class ShaunBot(IrcBot):
     def search_for(self, searchterm, *args, **kwargs):
         return 'https://www.google.co.uk/search?q='+searchterm
 
-        def access_cal(self, *args, **kwargs):
+    def _get_start_date(self, start, *args, **kwargs):
+        '''checks whether key is date or dateTime'''
+        if u'date' in start:
+            return start[u'date']
+        elif u'dateTime' in start:
+            return start[u'dateTime'].split('T')[0]
+        else :
+            return ''
+
+    def access_cal(self, *args, **kwargs):
+        '''use google cal API to return events'''
         client_id = ''
         client_secret = ''
         scope = 'https://www.googleapis.com/auth/calendar'
@@ -55,12 +68,36 @@ class ShaunBot(IrcBot):
             request = service.events().list(calendarId='primary')
             while request != None:
                 response = request.execute()
-                return '\n'.join(event.get('summary')+ ' on '+ event.get('start')[u'date'] for event in response.get('items',[]))
+                eventlist= []
+
+                for event in response.get('items',[]):
+                    eventlist.append(event.get('summary') + ' on '+ self._get_start_date(event.get('start')))
+                return '\n'.join(eventlist)
                 request = service.events().list_next(request, response)
+                eventlist = []
 
         except AccessTokenRefreshError:
             print ('The credentials have been revoked or expired, please re-run'
                     'the application to re-authorise')
+
+    def send_mail(self, receiver, *args, **kwargs):
+        sender = 'shaunpreston1991@gmail.com'
+        sub = 'test'
+        message = 'Test Email'
+
+        try:
+            smtpObj = smtplib.SMTP('smtp.gmail.com:587')
+            username = ''
+            password = ''
+            smtpObj.ehlo()
+            smtpObj.starttls()
+            smtpObj.login(username, password)
+            smtpObj.sendmail(sender, receiver, message)
+            smtpObj.quit()
+            return 'Mail Sent'
+        except smtplib.SMTPException:
+            return 'Unable to Send Mail: %s.' % str(error)
+
 
 if __name__ == '__main__':
     bot = ShaunBot('irc.freenode.org', 6667, 'NoahSucksBot', 'Problem', 'Peehead', 'Nob')
