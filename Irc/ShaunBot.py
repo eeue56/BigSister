@@ -85,13 +85,11 @@ class ShaunBot(IrcBot):
 
         if '-' in message:
             receiver, message = message.split('-')
-            print receiver
-            print message
         else:
             return 'Error - Syntax: mail <recipient address> - <message>'
         smtp_server = smtplib.SMTP('smtp.gmail.com:587')
         username = 'BigSister1379@gmail.com'
-        password = 'omegaspace1379'
+        password = ''
         sub = 'Big Sister Notification'
         body = string.join(('From: %s' % username,
                             'To: %s' % receiver,
