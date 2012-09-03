@@ -30,8 +30,7 @@ class ShaunBot(IrcBot):
         userlist = self.read().split(':')[2].split()
 
         for item in userlist:
-            self.send('PRIVMSG %s :%s\n' % (kwargs['target_channel'], item))
-        return '--End of User List--'
+            return 'Online Members: ' + ', '.join(userlist)
         
     def move_to_channel(self, newchan, *args, **kwargs):
         self.send('JOIN '+ newchan)
@@ -112,7 +111,7 @@ class ShaunBot(IrcBot):
             return 'Mail Sent'
 
         except smtplib.SMTPException, error:
-            return 'Unable to Send Mail: %s.' % str(error)
+            return 'Unable to Send Mail: {}.'.format(str(error))
 
 
 if __name__ == '__main__':
