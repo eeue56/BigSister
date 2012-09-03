@@ -97,9 +97,9 @@ class ShaunBot(IrcBot):
         username = 'BigSister1379@gmail.com'
         password = ''
         sub = 'Big Sister Notification'
-        body = '\r\n'.join(('From: %s' % username,
-                            'To: %s' % ', '.join(recipient),
-                            'Subject: %s' % sub,
+        body = '\r\n'.join(('From: {}'.format(username),
+                            'To: {}'.format(', '.join(recipient)),
+                            'Subject: {}'.format(sub),
                             '',
                             message))
 
