@@ -96,7 +96,7 @@ class ShaunBot(IrcBot):
         username = 'BigSister1379@gmail.com'
         password = ''
         sub = 'Big Sister Notification'
-        body = '\r\n'.join(('From: {}'.format(username),
+        body = '\r\n'.join(('From: BigSister',
                             'To: {}'.format(', '.join(recipient)),
                             'Subject: {}'.format(sub),
                             '',
@@ -106,7 +106,7 @@ class ShaunBot(IrcBot):
             smtp_server.ehlo()
             smtp_server.starttls()
             smtp_server.login(username, password)
-            smtp_server.sendmail(username, recipient, body)
+            smtp_server.sendmail('BigSister', recipient, body)
             smtp_server.quit()
             return 'Mail Sent'
 
