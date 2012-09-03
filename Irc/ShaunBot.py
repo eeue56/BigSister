@@ -86,10 +86,9 @@ class ShaunBot(IrcBot):
            syntax ~mail <recipient> - <message>'''
 
         if '-' in message:
-            receiver, message = message.split('-')
-            '''check for more than one recipient'''
-            if ',' in recipient:
-                recipient = recipient.split(',')
+            recipient, message = message.split('-')
+            '''convert to list in case of more than one recipient'''
+            recipient = recipient.split(',')
 
         else:
             return 'Error - Syntax: mail <recipient address> - <message>'
