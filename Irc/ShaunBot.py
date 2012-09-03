@@ -82,28 +82,36 @@ class ShaunBot(IrcBot):
                     'the application to re-authorise')
 
     def send_mail(self, message, *args, **kwargs):
+        '''using smtplib to email BigSister notifications
+           syntax ~mail <recipient> - <message>'''
 
         if '-' in message:
             receiver, message = message.split('-')
+            '''check for more than one recipient'''
+            if ',' in recipient:
+                recipient = recipient.split(',')
+
         else:
             return 'Error - Syntax: mail <recipient address> - <message>'
+        
         smtp_server = smtplib.SMTP('smtp.gmail.com:587')
         username = 'BigSister1379@gmail.com'
         password = ''
         sub = 'Big Sister Notification'
-        body = string.join(('From: %s' % username,
-                            'To: %s' % receiver,
+        body = '\r\n'.join(('From: %s' % username,
+                            'To: %s' % recipient,
                             'Subject: %s' % sub,
                             '',
-                            message), '\r\n')
+                            message))
 
         try:
             smtp_server.ehlo()
             smtp_server.starttls()
             smtp_server.login(username, password)
-            smtp_server.sendmail(username, receiver, body)
+            smtp_server.sendmail(username, recipient, body)
             smtp_server.quit()
             return 'Mail Sent'
+
         except smtplib.SMTPException, error:
             return 'Unable to Send Mail: %s.' % str(error)
 
