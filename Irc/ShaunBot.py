@@ -80,23 +80,27 @@ class ShaunBot(IrcBot):
             print ('The credentials have been revoked or expired, please re-run'
                     'the application to re-authorise')
 
-    def send_mail(self, receiver, *args, **kwargs):
-        sender = 'BigSister1379@gmail.com'
-        sub = 'Big Sister Notification'
-        message = ''
+    def send_mail(self, message, *args, **kwargs):
+        if '-' in message:
+            receiver, message = message.split('-')
+            sender = 'BigSister1379@gmail.com'
+            sub = 'Big Sister Notification'
 
-        try:
-            smtp_server = smtplib.SMTP('smtp.gmail.com:587')
-            username = 'BigSister1379@gmail.com'
-            password = ''
-            smtp_server.ehlo()
-            smtp_server.starttls()
-            smtp_server.login(username, password)
-            smtp_server.sendmail(sender, receiver, message)
-            smtp_server.quit()
-            return 'Mail Sent'
-        except smtplib.SMTPException, error:
-            return 'Unable to Send Mail: %s.' % str(error)
+            try:
+                smtp_server = smtplib.SMTP('smtp.gmail.com:587')
+                username = 'BigSister1379@gmail.com'
+                password = ''
+
+                smtp_server.ehlo()
+                smtp_server.starttls()
+                smtp_server.login(username, password)
+                smtp_server.sendmail(sender, receiver, message)
+                smtp_server.quit()
+                return 'Mail Sent'
+            except smtplib.SMTPException, error:
+                return 'Unable to Send Mail: %s.' % str(error)
+        else:
+            return 'Error - Syntax: mail <recipient address> - <message>'
 
 
 if __name__ == '__main__':
