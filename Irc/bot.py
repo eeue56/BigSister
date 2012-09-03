@@ -40,6 +40,7 @@ class IrcBot(object):
         self.read(1024)
         self.send('USER {}'.format(self.name))
         self.read(1024)
+        self._register_channel(self.nick)
 
     def register(self, password):
         ''' Identifies with NickServ using the constant password'''
