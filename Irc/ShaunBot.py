@@ -3,6 +3,7 @@ from time import sleep
 import socket
 
 import smtplib
+import string
 
 import httplib2
 import sys
@@ -81,26 +82,32 @@ class ShaunBot(IrcBot):
                     'the application to re-authorise')
 
     def send_mail(self, message, *args, **kwargs):
+
         if '-' in message:
             receiver, message = message.split('-')
-            sender = 'BigSister1379@gmail.com'
-            sub = 'Big Sister Notification'
-
-            try:
-                smtp_server = smtplib.SMTP('smtp.gmail.com:587')
-                username = 'BigSister1379@gmail.com'
-                password = ''
-
-                smtp_server.ehlo()
-                smtp_server.starttls()
-                smtp_server.login(username, password)
-                smtp_server.sendmail(sender, receiver, message)
-                smtp_server.quit()
-                return 'Mail Sent'
-            except smtplib.SMTPException, error:
-                return 'Unable to Send Mail: %s.' % str(error)
+            print receiver
+            print message
         else:
             return 'Error - Syntax: mail <recipient address> - <message>'
+        smtp_server = smtplib.SMTP('smtp.gmail.com:587')
+        username = 'BigSister1379@gmail.com'
+        password = 'omegaspace1379'
+        sub = 'Big Sister Notification'
+        body = string.join(('From: %s' % username,
+                            'To: %s' % receiver,
+                            'Subject: %s' % sub,
+                            '',
+                            message), '\r\n')
+
+        try:
+            smtp_server.ehlo()
+            smtp_server.starttls()
+            smtp_server.login(username, password)
+            smtp_server.sendmail(username, receiver, body)
+            smtp_server.quit()
+            return 'Mail Sent'
+        except smtplib.SMTPException, error:
+            return 'Unable to Send Mail: %s.' % str(error)
 
 
 if __name__ == '__main__':
