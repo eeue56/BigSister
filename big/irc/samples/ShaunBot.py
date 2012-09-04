@@ -1,4 +1,4 @@
-from bot import IrcBot
+from big.irc.bot import IrcBot
 from time import sleep
 import socket
 
