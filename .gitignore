@@ -132,6 +132,8 @@ Desktop.ini
 #############
 
 *.py[co]
+*.log
+*.bat
 
 # Packages
 *.egg
