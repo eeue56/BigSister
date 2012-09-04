@@ -2,7 +2,7 @@ import socket
 import re
 import sys
 from time import sleep
-from misc import crop_string
+from big.irc.misc import crop_string
 
 class IrcBot(object):
 
