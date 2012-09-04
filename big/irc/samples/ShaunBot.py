@@ -8,6 +8,8 @@ import string
 import httplib2
 import sys
 
+from big.database.sql import MembersDatabase
+
 from apiclient.discovery import build
 from oauth2client.file import Storage
 from oauth2client.client import AccessTokenRefreshError
@@ -24,6 +26,7 @@ class ShaunBot(IrcBot):
         self.register_command(self.search_for, 'search_for')
         self.register_command(self.access_cal, 'cal')
         self.register_command(self.send_mail, 'mail')
+        self.register_command(self.add_new_member, 'add_member')
 
     def list_users(self, *args, **kwargs):
         self.send('NAMES ' + kwargs['target_channel'])
@@ -112,6 +115,11 @@ class ShaunBot(IrcBot):
 
         except smtplib.SMTPException, error:
             return 'Unable to Send Mail: {}.'.format(str(error))
+
+    def add_new_member(self, member_details, *args, **kwargs):
+        if ',' in member_details:
+            bangor_id, surname, forename, email, mobile, school, study_year = member_details.split(',')
+            MembersDatabase.add_member(bangor_id, surname, forename, email, mobile, school, study_year)
 
 
 if __name__ == '__main__':
