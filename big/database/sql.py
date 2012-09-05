@@ -48,6 +48,14 @@ class MembersDatabase(object):
 		else:
 			return True
 		c.close()
+
+	def print_members(self):
+		c =self.conn.cursor()
+		print '3'
+		membership = c. execute('''SELECT * FROM members WHERE bangor_id !=?''', (None))
+		c.close()
+		print '4'
+		return membership
 		
 
 

@@ -28,6 +28,7 @@ class ShaunBot(IrcBot):
         self.register_command(self.access_cal, 'cal')
         self.register_command(self.send_mail, 'mail')
         self.register_command(self.add_new_member, 'add_member')
+        self.register_command(self.print_members, 'print_members')
 
     def list_users(self, *args, **kwargs):
         self.send('NAMES ' + kwargs['target_channel'])
@@ -122,6 +123,14 @@ class ShaunBot(IrcBot):
         if ',' in member_details:
             bangor_id, surname, forename, email, mobile, school, study_year = member_details.split(',')
             self.database.add_member(bangor_id, surname, forename, email, mobile, school, study_year)
+
+    def print_members(self):
+        print '1'
+        members = self.database.print_members()
+        print '2'
+        print members
+
+
 
 
 if __name__ == '__main__':
