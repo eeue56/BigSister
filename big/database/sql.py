@@ -31,6 +31,7 @@ class MembersDatabase(object):
 
 	def remove_member(self, bangor_id):
 		c = self.conn.cursor()
+		print bangor_id
 		if self.validate_user(bangor_id):
 			c.execute('''DELETE FROM members WHERE bangor_id=?''', (bangor_id))
 		else:
@@ -42,8 +43,8 @@ class MembersDatabase(object):
 		c = self.conn.cursor()
 		if c.execute('''SELECT forename FROM members WHERE bangor_id=?''', (bangor_id)) != '':
 			return True
-		self.conn.commit()
 		c.close()
+		return False
 
 
 	def _close_connection(self):
