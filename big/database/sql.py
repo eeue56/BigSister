@@ -24,16 +24,17 @@ class MembersDatabase(object):
 
 	def add_member(self, bangor_id, surname, forename, email, mobile, school, study_year):
 		c = self.conn.cursor()
+		print bangor_id
 		if not self.validate_user(bangor_id):
 			print 'Here I am'
-			c.execute('''INSERT INTO members VALUES (bangor_id, surname, forename, email, mobile, school, study_year)''')
+			c.execute('''INSERT INTO members VALUES (?,?,?,?,?,?,?)''', (bangor_id, surname, forename, email, mobile, school, study_year))
 		self.conn.commit()
 		c.close()
 
 	def remove_member(self, bangor_id):
 		c = self.conn.cursor()
 		if self.validate_user(bangor_id):
-			c.execute('''DELETE FROM members WHERE bangor_id=?''', (bangor_id))
+			c.execute('''DELETE FROM members WHERE bangor_id=?''', (bangor_id,))
 		else:
 			print 'Member not removed'
 		self.conn.commit()
@@ -43,9 +44,9 @@ class MembersDatabase(object):
 		c = self.conn.cursor()
 		c.execute('''SELECT * FROM members WHERE bangor_id=?''', (bangor_id,))
 		if c.fetchone() is None:
-			return True
-		else:
 			return False
+		else:
+			return True
 		c.close()
 		
 
