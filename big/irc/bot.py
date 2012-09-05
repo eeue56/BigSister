@@ -15,13 +15,18 @@ class IrcBot(object):
         self.owner = owner
         self.registered = registered
 
+        if registered is None:
+            self.registered = False
+
         self.channels = {}
 
         self.actions = {
                         'quit' : self.quit,
                         'silence' : self.silence,
                         'speak' : self.speak,
-                        '!!' : self.last_command
+                        '!!' : self.last_command,
+                        'help' : self.list_actions,
+                        'about' : self.about_action
                         }
 
         self.commands = []
@@ -29,6 +34,10 @@ class IrcBot(object):
 
         self.identified = False
 
+    def __repr__(self):
+        return  '\n'.join(('{} : '.format(self.nick),
+                'Channels : {}'.format(' | '.join(self.channels)),
+                'Actions : {}'.format(' | '.join(self.actions))))
 
     def connect(self):
         ''' Connects to IRC port given on creation and sets nick and 
@@ -47,10 +56,36 @@ class IrcBot(object):
         self._send_message('NickServ', 'identify {password}'.format(password=password))
         self.read()
 
+    def connect_to_channel(self, channel, *args, **kwargs):
+        ''' Connects to an IRC on the current network
+            
+            channel - a given channel to join
+        '''
+        self.send('JOIN {}'.format(channel))
+        self._register_channel(channel)
+        return 'Done'
+
+    def _register_channel(self, channel):
+        self.channels[channel] = {'silenced' : False}
+
+    def quit(self, *args, **kwargs):
+        ''' Quits the network and calls sys.exit '''
+        self.send('QUIT')
+        sys.exit(0)
+
+    def pong(self):
+        '''Sends PONG to server'''
+        self.send('PONG')
+    
+    def ping(self):
+        ''' Pings the host '''
+        self.send('PING {}'.format(self.host))
+
+
     def register_command(self, func, key):
         ''' Registers a command as an action '''
         self.actions[key] = func
-        
+
     def silence(self, *args, **kwargs):
         ''' Silences the bot '''
         self.channels[kwargs['target_channel']]['silenced'] = True
@@ -72,27 +107,17 @@ class IrcBot(object):
         except IndexError:
             return 'Need to use a command before you can reuse it'
 
-    def connect_to_channel(self, channel, *args, **kwargs):
-        ''' Connects to an IRC on the current network
-            
-            channel - a given channel to join
-        '''
-        self.send('JOIN {}'.format(channel))
-        self._register_channel(channel)
-        return 'Done'
+    def list_actions(self, *args, **kwargs):
+        ''' Returns a list of actions '''
 
-    def quit(self, *args, **kwargs):
-        ''' Quits the network and calls sys.exit '''
-        self.send('QUIT')
-        sys.exit(0)
-    
-    def pong(self):
-        '''Sends PONG to server'''
-        self.send('PONG')
-    
-    def ping(self):
-        ''' Pings the host '''
-        self.send('PING {}'.format(self.host))
+        return ' | '.join(self.actions)
+
+    def about_action(self, message, *args, **kwargs):
+        ''' Returns the __doc__ of the method by default. '''
+
+        command, action = self.get_action(message)
+
+        return action.__doc__
 
     def useful_parts(self, line):
         '''If a line is a PRIVMSG, it strips out the channel name, the username, and the message
@@ -133,9 +158,6 @@ class IrcBot(object):
                     self._send_message(channel, message_.strip())
             elif message != '':
                 self._send_message(channel, message)
-
-    def _register_channel(self, channel):
-        self.channels[channel] = {'silenced' : False}
             
     def is_directed_at_me(self, line):
         ''' Checks if command is directed at bot '''
@@ -181,9 +203,8 @@ class IrcBot(object):
 
     def _is_identify_check_needed(self):
         '''  Checks if identity check is needed '''
-        return self.registered is not None and not self.identified
+        return self.registered and not self.identified
             
-
     def process_command(self, user, target_channel, message):
         ''' Processes a command '''
 
@@ -219,7 +240,6 @@ class IrcBot(object):
         
         self.process_command(user, target_channel, message)
 
-
     def process_next_line(self):
         ''' Reads a line from the socket and processes it, calling the right action and ponging '''
         line = self.next_line()
@@ -241,6 +261,7 @@ class IrcBot(object):
             useful_parts = self.useful_parts(line)
             if useful_parts is not None:
                 self.process_directed_line(useful_parts)
+
     
 
 if __name__ == '__main__':
@@ -250,6 +271,8 @@ if __name__ == '__main__':
     bot.connect_to_channel('##dme')
 
     bot.register_command(lambda *args, **kwargs: 'Hi ' + kwargs['user'], 'hi')
+
+    print repr(bot)
 
     with open('errors.log', 'w+') as errors:
         while True:
