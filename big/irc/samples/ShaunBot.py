@@ -29,6 +29,7 @@ class ShaunBot(IrcBot):
         self.register_command(self.send_mail, 'mail')
         self.register_command(self.add_new_member, 'add_member')
         self.register_command(self.print_members, 'print_members')
+        self.register_command(self.remove_member, 'remove_member')
         self.register_command(self.validate, 'validate')
 
     def list_users(self, *args, **kwargs):
@@ -120,25 +121,34 @@ class ShaunBot(IrcBot):
             return 'Unable to Send Mail: {}.'.format(str(error))
 
     def add_new_member(self, member_details, *args, **kwargs):
-        self.database.create_table()
+        '''adding a new member to the database if it does not already exist'''
         if ',' in member_details:
             bangor_id, surname, forename, email, mobile, school, study_year = (detail.strip() for detail in member_details.split(','))
-            self.database.add_member(bangor_id, surname, forename, email, mobile, school, study_year)
+            if not self.database.validate_user(bangor_id):
+                self.database.add_member(bangor_id, surname, forename, email, mobile, school, study_year)
+                return 'Member Added'
+            else:
+                return 'Member {} already exists'.format(bangor_id)
 
     def print_members(self, *args, **kwargs):
         return "\n".join(', '.join(map(str,member)) for member in self.database.print_members())
 
     def remove_member(self, bangor_id, *args, **kwargs):
-        self.database.remove_member(bangor_id)
-        return 'Member Removed'
+        '''remove member from database if it exists'''
+        if not self.database.validate_user(bangor_id):
+            return 'Member {} does not exist'.format(bangor_id)
+        else:
+            self.database.remove_member(bangor_id)
+            return 'Member Removed'
 
     def validate(self, bangor_id, *args, **kwargs):
-        if self.database.validate_user(bangor_id) is False:
-            return 'not found'
+        '''checks to see if member is in database or not'''
+        if not self.database.validate_user(bangor_id):
+            return 'Member not Found'
         else:
-            return 'found'
-
-
+            name = ' '.join(self.database.return_name(bangor_id))
+            print name
+            return '{} is already a Member'.format(name)
 
 if __name__ == '__main__':
     database = MembersDatabase('members.db')
