@@ -8,39 +8,43 @@ class MembersDatabase(object):
 		self.database_name = database_name
 		self.conn = None
 
-	def _connect_to_db():
-		conn = sqlite3.connect(self.database_name)
+	def _connect_to_db(self):
+		self.conn = sqlite3.connect(self.database_name)
 
-	def create_table():
+	def create_table(self):
 		try:
-			c = conn.cursor()
+			c = self.conn.cursor()
 			c.execute('''CREATE TABLE members
-							(bangor_id text, surname text, forname text, email text, mobile text, school text,study_year int)''')
+							(bangor_id text, surname text, forename text, email text, mobile text, school text,study_year int)''')
+			self.conn.commit()
 			c.close()
+
 		except sqlite3.Error, e:
 			print "Error: " + e.args[0]
 
-	def add_member(bangor_id, surname, forename, email, mobile, school, study_year):
-		c = conn.cursor()
+	def add_member(self, bangor_id, surname, forename, email, mobile, school, study_year):
+		c = self.conn.cursor()
 		if not self.validate_user(bangor_id):
 			c.execute('''INSERT INTO members VALUES (bangor_id, surname, forename, email, mobile, school, study_year)''')
+		self.conn.commit()
 		c.close()
 
-	def remove_member(bangor_id):
-		c = conn.cursor()
+	def remove_member(self, bangor_id):
+		c = self.conn.cursor()
 		if self.validate_user(bangor_id):
 			c.execute('''DELETE FROM members WHERE bangor_id=?''', (bangor_id))
 		else:
 			print 'Member not removed'
+		self.conn.commit()
 		c.close()
 
-	def validate_user(bangor_id):
-		c = conn.cursor()
-		if c.execute('''SELECT forename FROM members WHERE bangorid=?''', (bangor_id)) != '':
+	def validate_user(self, bangor_id):
+		c = self.conn.cursor()
+		if c.execute('''SELECT forename FROM members WHERE bangor_id=?''', (bangor_id)) != '':
 			return True
+		self.conn.commit()
 		c.close()
 
 
-	def _close_connection():
-		c.commit()
-		c.close()
+	def _close_connection(self):
+		self.conn.close()

@@ -19,8 +19,9 @@ from oauth2client.tools import run
 class ShaunBot(IrcBot):
 
 
-    def __init__(self, host, port, nick, ident, realname, owner):
+    def __init__(self, host, port, nick, ident, realname, owner, database):
         IrcBot.__init__(self, host, port, nick, ident, realname, owner)
+        self.database = database
         self.register_command(self.move_to_channel, 'move_to')
         self.register_command(self.list_users, 'users')
         self.register_command(self.search_for, 'search_for')
@@ -117,13 +118,17 @@ class ShaunBot(IrcBot):
             return 'Unable to Send Mail: {}.'.format(str(error))
 
     def add_new_member(self, member_details, *args, **kwargs):
+        self.database.create_table()
         if ',' in member_details:
             bangor_id, surname, forename, email, mobile, school, study_year = member_details.split(',')
-            MembersDatabase.add_member(bangor_id, surname, forename, email, mobile, school, study_year)
+            self.database.add_member(bangor_id, surname, forename, email, mobile, school, study_year)
 
 
 if __name__ == '__main__':
-    bot = ShaunBot('irc.freenode.org', 6667, 'NoahSucksBot', 'Problem', 'Peehead', 'Nob')
+    database = MembersDatabase('members.db')
+    database._connect_to_db()
+
+    bot = ShaunBot('irc.freenode.org', 6667, 'NoahSucksBot', 'Problem', 'Peehead', 'Nob', database)
     bot.connect()
     bot.connect_to_channel('##dme')
 
