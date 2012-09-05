@@ -24,7 +24,6 @@ class MembersDatabase(object):
 
 	def add_member(self, bangor_id, surname, forename, email, mobile, school, study_year):
 		c = self.conn.cursor()
-		print bangor_id
 		if not self.validate_user(bangor_id):
 			print 'Here I am'
 			c.execute('''INSERT INTO members VALUES (?,?,?,?,?,?,?)''', (bangor_id, surname, forename, email, mobile, school, study_year))
@@ -42,7 +41,8 @@ class MembersDatabase(object):
 
 	def validate_user(self, bangor_id):
 		c = self.conn.cursor()
-		c.execute('''SELECT * FROM members WHERE bangor_id=?''', (bangor_id,))
+		c.execute('''SELECT surname FROM members WHERE bangor_id=?''', (bangor_id,))
+		print c.fetchone()
 		if c.fetchone() is None:
 			return False
 		else:
@@ -51,10 +51,9 @@ class MembersDatabase(object):
 
 	def print_members(self):
 		c =self.conn.cursor()
-		print '3'
-		membership = c. execute('''SELECT * FROM members WHERE bangor_id !=?''', (None))
+		c. execute('''SELECT * FROM members''')
+		membership = c.fetchall()
 		c.close()
-		print '4'
 		return membership
 		
 

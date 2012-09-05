@@ -29,6 +29,7 @@ class ShaunBot(IrcBot):
         self.register_command(self.send_mail, 'mail')
         self.register_command(self.add_new_member, 'add_member')
         self.register_command(self.print_members, 'print_members')
+        self.register_command(self.validate, 'validate')
 
     def list_users(self, *args, **kwargs):
         self.send('NAMES ' + kwargs['target_channel'])
@@ -121,15 +122,21 @@ class ShaunBot(IrcBot):
     def add_new_member(self, member_details, *args, **kwargs):
         self.database.create_table()
         if ',' in member_details:
-            bangor_id, surname, forename, email, mobile, school, study_year = member_details.split(',')
+            bangor_id, surname, forename, email, mobile, school, study_year = (detail.strip() for detail in member_details.split(','))
             self.database.add_member(bangor_id, surname, forename, email, mobile, school, study_year)
 
-    def print_members(self):
-        print '1'
-        members = self.database.print_members()
-        print '2'
-        print members
+    def print_members(self, *args, **kwargs):
+        return "\n".join(', '.join(map(str,member)) for member in self.database.print_members())
 
+    def remove_member(self, bangor_id, *args, **kwargs):
+        self.database.remove_member(bangor_id)
+        return 'Member Removed'
+
+    def validate(self, bangor_id, *args, **kwargs):
+        if self.database.validate_user(bangor_id) is False:
+            return 'not found'
+        else:
+            return 'found'
 
 
 
