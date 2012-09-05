@@ -121,7 +121,6 @@ class ShaunBot(IrcBot):
         self.database.create_table()
         if ',' in member_details:
             bangor_id, surname, forename, email, mobile, school, study_year = member_details.split(',')
-            print bangor_id
             self.database.add_member(bangor_id, surname, forename, email, mobile, school, study_year)
 
 
