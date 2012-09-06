@@ -117,7 +117,9 @@ class IrcBot(object):
 
         command, action = self.get_action(message)
 
-        return action.__doc__
+        if command is not None:
+            return action.__doc__
+        return 'No such action!'
 
     def useful_parts(self, line):
         '''If a line is a PRIVMSG, it strips out the channel name, the username, and the message
@@ -173,6 +175,10 @@ class IrcBot(object):
 
     def get_action(self, message):
         ''' Gets the action from the message and returns it if it is valid action'''
+
+        if len(message.strip()) < 1:
+            return None, None
+
         if message.split()[0].strip() in self.actions:
             command, action = message.split()[0], self.actions[message.split()[0]]
 
