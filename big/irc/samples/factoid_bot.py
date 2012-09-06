@@ -75,10 +75,12 @@ class FactoidBot(IrcBot):
                           LIMIT 1''',
                         (factor,))
 
-        result = self.c.fetchall()[0]
+        result = self.c.fetchall()
 
         if result is None:
             return 'Not found!'
+
+        result = result[0]
 
         self._update_factoid(factor, result[1])
         
