@@ -9,7 +9,7 @@ def levenshtein(current_word, next_word):
 	if len(current_word) < len(next_word):
 		current_word, next_word = next_word, current_word
 		
-	previous_row = xrange(len(next_word) + 1)
+	previous_row = list(range(len(next_word) + 1))
 	
 	for i, current_character in enumerate(current_word):
 		current_row = [i + 1]

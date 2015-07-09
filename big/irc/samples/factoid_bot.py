@@ -161,9 +161,9 @@ class FactoidBot(IrcBot):
 if __name__ == '__main__':
     
 
-    bot = FactoidBot('irc.freenode.org', 6667, 'FactoidOmega', 'Alpha', 'Peehead', 'Nob')
+    bot = FactoidBot('irc.freenode.org', 6667, 'SuxBot', 'SuxBot', 'SuxBot', 'SuxBot')
     bot.connect()
-    bot.connect_to_channel('##dme')
+    bot.connect_to_channel('##linsuxchat')
 
     bot.register_command(lambda *args, **kwargs: 'Hi ' + kwargs['user'], 'hi')
     bot.register_command(lambda *args, **kwargs: repr(bot), 'repr')

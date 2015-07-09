@@ -64,6 +64,6 @@ class ReversePolishExpression(object):
 
 if __name__ == '__main__':
 	rpn = ReversePolishExpression()
-	print rpn.calulate('10.5456546 4.1 *')
-	print rpn.calulate('5 +')
+	print((rpn.calulate('10.5456546 4.1 *')))
+	print((rpn.calulate('5 +')))
 		

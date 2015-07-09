@@ -49,17 +49,17 @@ class ShaunBot(IrcBot):
 
     def _get_start_date(self, start, *args, **kwargs):
         '''checks whether key is date or dateTime'''
-        if u'date' in start:
-            return start[u'date']
-        elif u'dateTime' in start:
-            return start[u'dateTime'].split('T')[0]
+        if 'date' in start:
+            return start['date']
+        elif 'dateTime' in start:
+            return start['dateTime'].split('T')[0]
         else :
             return ''
 
     def print_events(self, *args, **kwargs):
-        print 'Hmm'
+        print('Hmm')
         events = '\n'.join(self.cal.return_events())
-        print events
+        print(events)
         return events
 
     def send_mail(self, message, *args, **kwargs):
@@ -92,7 +92,7 @@ class ShaunBot(IrcBot):
             smtp_server.quit()
             return 'Mail Sent'
 
-        except smtplib.SMTPException, error:
+        except smtplib.SMTPException as error:
             return 'Unable to Send Mail: {}.'.format(str(error))
 
     def add_new_member(self, member_details, *args, **kwargs):
@@ -122,7 +122,7 @@ class ShaunBot(IrcBot):
             return 'Member not Found'
         else:
             name = ' '.join(self.database.return_name(bangor_id))
-            print name
+            print(name)
             return '{} is already a Member'.format(name)
 
 if __name__ == '__main__':

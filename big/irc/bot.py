@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import socket
 import re
 import sys
@@ -191,7 +193,8 @@ class IrcBot(object):
     
     def send(self, text):
         ''' Send text to connected socket '''
-        self.s.send(text.strip() + '\r\n')
+        text = text.strip() + '\r\n'
+        self.s.send(text.encode("utf-8"))
 
     def _join_waiting_channels(self):
         for chan in self.to_join:
@@ -200,7 +203,7 @@ class IrcBot(object):
 
     def next_line(self):
         ''' Gets the next line from the socket '''
-        return self.read()
+        return self.read().decode("utf-8")
 
     def _add_command_to_history(self, command,  action):
         ''' Adds command to history '''
@@ -278,7 +281,7 @@ if __name__ == '__main__':
 
     bot.register_command(lambda *args, **kwargs: 'Hi ' + kwargs['user'], 'hi')
 
-    print repr(bot)
+    print(repr(bot))
 
     with open('errors.log', 'w+') as errors:
         while True:

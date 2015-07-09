@@ -19,8 +19,8 @@ class MembersDatabase(object):
 			self.conn.commit()
 			c.close()
 
-		except sqlite3.Error, e:
-			print "Error: " + e.args[0]
+		except sqlite3.Error as e:
+			print(("Error: " + e.args[0]))
 
 	def add_member(self, bangor_id, surname, forename, email, mobile, school, study_year):
 		c = self.conn.cursor()
@@ -34,7 +34,7 @@ class MembersDatabase(object):
 		if self.validate_user(bangor_id):
 			c.execute('''DELETE FROM members WHERE bangor_id=?''', (bangor_id,))
 		else:
-			print 'Member not removed'
+			print('Member not removed')
 		self.conn.commit()
 		c.close()
 

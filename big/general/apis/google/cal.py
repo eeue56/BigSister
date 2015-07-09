@@ -25,36 +25,36 @@ class GoogleCalendar(object):
 
     def _get_start_date(self, start):
         '''checks whether key is date or dateTime'''
-        if u'date' in start:
-            return start[u'date']
-        elif u'dateTime' in start:
-            return start[u'dateTime'].split('T')[0]
+        if 'date' in start:
+            return start['date']
+        elif 'dateTime' in start:
+            return start['dateTime'].split('T')[0]
         else :
             return ''
 
     @staticmethod
     def return_events(self):
-        print '1'
+        print('1')
         http = httplib2.Http()
         http = self.credentials.authorize(http)
         service = build('calendar', 'v3', http=http)
 
         try:
-            print '2'
+            print('2')
             request = service.events().list(calendarId='primary')
 
             while request != None:
                 response = request.execute()
                 eventlist = []
-                print '3'
+                print('3')
                 for event in response.get('items',[]):
                     eventlist.append(event.get('summary') + ' on ' + self._get_start_date(event.get('start')))
 
                 return eventlist
-                print '4'
+                print('4')
                 request = service.events().list_next(request, response)
                 eventlist = []
-                print '5'
+                print('5')
 
         except AccessTokenRefreshError:
             print ('The credentials have been revoked or expired, please re-run'
@@ -63,5 +63,5 @@ class GoogleCalendar(object):
 if __name__ == '__main__':
     gc = GoogleCalendar()
     gc._store_credentials()
-    print '\n'.join(gc.return_events())
+    print(('\n'.join(gc.return_events())))
 
